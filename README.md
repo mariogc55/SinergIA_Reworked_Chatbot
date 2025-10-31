@@ -10,7 +10,7 @@ Nuestra arquitectura se basa en una **Arquitectura Orientada a Servicios (SOA)**
 
 Puedes añadir el logo de SinergIA aquí usando un enlace a la imagen:
 
-`![Logo Oficial SinergIA](https://raw.githubusercontent.com/mariogc55/SinergIA_Reworked_Chatbot/SinergIA-logo.jpeg)`
+`![Logo Oficial SinergIA](https://github.com/mariogc55/SinergIA_Reworked_Chatbot/blob/main/assets/SinergIA-logo.jpeg)`
 
 ---
 
