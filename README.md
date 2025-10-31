@@ -8,8 +8,6 @@ Nuestra arquitectura se basa en una **Arquitectura Orientada a Servicios (SOA)**
 
 ## Logo del Proyecto
 
-Puedes añadir el logo de SinergIA aquí usando un enlace a la imagen:
-
 <img width="737" height="651" alt="Logotipo SInergIA" src="https://github.com/user-attachments/assets/402a0e1c-6ed4-4787-8428-af405538650d" />
 
 ---
