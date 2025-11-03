@@ -8,7 +8,8 @@ Nuestra arquitectura se basa en una **Arquitectura Orientada a Servicios (SOA)**
 
 ## Logo del Proyecto
 
-<img width="737" height="651" alt="Logotipo SInergIA" src="https://github.com/user-attachments/assets/402a0e1c-6ed4-4787-8428-af405538650d" />
+<img width="1080" height="1080" alt="SinergIA_Reworked-logo-no-background" src="https://github.com/user-attachments/assets/a34c2850-e575-41cd-8dc0-9352e28be41b" />
+
 
 ---
 
@@ -53,12 +54,12 @@ SinergIA se estructura en capas lógicas para segregar la lógica del negocio de
 
 La siguiente tabla detalla la asignación de roles y responsabilidades clave del equipo de desarrollo, siguiendo las directrices de Ingeniería y Gestión de Proyectos TI:
 
-| Integrante | Rol Principal (Título) | Foco de Responsabilidad |
-| :--- | :--- | :--- |
-| **Daniel** | Tester / Gestor de Calidad y Riesgos | Definición de Pruebas de Integración (Adaptadores) y el cumplimiento de las fórmulas PSP (PSPCalculator.js). Asegura el estándar ISO 9001 en el manejo de datos sensibles. |
-| **Hilan** | Diseño - Analista / Gestor de Interesados | Diseño del Dashboard PSP/Métricas y la interfaz de Chatbot (Frontend). Documentación de Puertos e Interfaces (IEEE 29148). |
-| **Mario** | Desarrollador / Gestor de Innovación y Arquitectura TI | Diseño e implementación del **MS-Orquestador** (Lógica Core/Strategy) y es **Accountable** (A) para el diseño del **MS-Métricas**. |
-| **Raúl** | Planeador / Director del Proyecto / Gestor de Alcance y Cronograma | Liderazgo del proyecto, aplicación de PSP (Guía de Ejecución), y cálculo de métricas EVM (Valor Ganado). |
+| Integrante | Rol Gestión | Rol Producto | Foco de Responsabilidad |
+| :--- | :--- | :--- | :--- |
+| **Hilan Eduardo Alegría Yate** | Inicio/Diseño | Analista / Líder del Proyecto / Diseñador | Liderazgo del proyecto, Diseño del Dashboard PSP/Métricas y la interfaz de Chatbot (Frontend). Documentación de Puertos e Interfaces (IEEE 29148). |
+| **Harold Daniel Zúñiga Samboní** | Operador | Tester | Definición de Pruebas de Integración (Adaptadores) y el cumplimiento de las fórmulas PSP (PSPCalculator.js). Asegura el estándar ISO 9001 en el manejo de datos sensibles. |
+| **Mario Guerrero Castillo** | Postmortem/Monitoreo | Desarrollador | Diseño e implementación del **MS-Orquestador** (Lógica Core/Strategy) y es **Accountable** (A) para el diseño del **MS-Métricas**. |
+| **Raul Guillermo Orobio Ospina** | Planeador | Planeador | Aplicación de PSP (Guía de Ejecución), y cálculo de métricas EVM (Valor Ganado). |
 
 ---
 
