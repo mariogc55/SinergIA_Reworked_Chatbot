@@ -1,39 +1,45 @@
 <template>
-  <div class="chat-container">
-    <h2>SinergIA: Asistente de Proyectos (v1.0)</h2>
-    <div class="messages">
+  <div class="chat-container bg-gray-800 text-white shadow-2xl rounded-xl">
+    <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">SinergIA: Asistente de Proyectos (Usuario: {{ authStore.getCurrentUserId }})</h2>
+    
+    <div class="messages bg-gray-700 rounded-lg p-3">
       <div v-for="(msg, index) in messages" :key="index" :class="['message', msg.type]">
         <p>{{ msg.text }}</p>
-        <p v-if="msg.jiraKey" class="jira-link">
-          Tarea Creada: <a :href="msg.jiraUrl" target="_blank">{{ msg.jiraKey }}</a>
+        <p v-if="msg.jiraKey" class="jira-link text-blue-400 text-sm mt-1">
+          Tarea Creada: <a :href="msg.jiraUrl" target="_blank" class="hover:underline">{{ msg.jiraKey }}</a>
         </p>
       </div>
     </div>
     
-    <div class="input-area">
+    <div class="input-area flex gap-3 mt-4">
       <input 
         v-model="prompt" 
         @keyup.enter="sendMessage" 
         :disabled="isLoading" 
-        placeholder="Ej: 'Crear una tarea que diga construye el programa Clave del proyecto KAN'"
+        placeholder="Ej: 'Crear tarea: Construye el programa. Proyecto KAN'"
+        class="flex-grow p-3 border border-gray-600 rounded-lg bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
-      <button @click="sendMessage" :disabled="isLoading">
+      <button @click="sendMessage" :disabled="isLoading" class="px-6 py-3 border-none rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition duration-150 disabled:bg-blue-900 disabled:cursor-not-allowed">
         {{ isLoading ? 'Procesando...' : 'Enviar' }}
       </button>
     </div>
-    <p v-if="error" class="error-message">Error: {{ error }}</p>
+    <p v-if="error" class="error-message text-red-400 mt-2">Error: {{ error }}</p>
   </div>
 </template>
 
 <script>
-import { AutomationService } from '../services/AutomationService'; 
+import { AutomationService } from '@/services/AutomationService'; 
+import { useAuthStore } from '@/stores/authStore';
 
 export default {
   name: 'ChatInterface',
+  setup() {
+    const authStore = useAuthStore();
+    return { authStore };
+  },
   data() {
     return {
       prompt: '',
-      userId: 'user-pmbok-id', 
       messages: [
         { type: 'bot', text: 'Hola, soy SinergIA. ¿En qué tarea de automatización puedo ayudarte hoy? (Ej: crear tarea, analizar riesgo).' }
       ],
@@ -53,7 +59,7 @@ export default {
       this.messages.push({ type: 'user', text: userPrompt });
 
       try {
-        const response = await AutomationService.triggerAutomation(userPrompt, this.userId);
+        const response = await AutomationService.triggerAutomation(userPrompt, this.authStore.getCurrentUserId);
         
         this.messages.push({ 
           type: 'bot', 
@@ -76,66 +82,36 @@ export default {
 
 <style scoped>
 .chat-container {
-    max-width: 700px;
-    margin: 50px auto;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 25px;
 }
 .messages {
-    height: 400px;
+    height: 60vh;
     overflow-y: auto;
-    border-bottom: 1px solid #eee;
-    margin-bottom: 15px;
-    padding-right: 10px;
 }
 .message {
     margin: 10px 0;
-    padding: 8px 12px;
-    border-radius: 18px;
-    max-width: 80%;
+    padding: 10px 15px;
+    border-radius: 20px;
+    max-width: 85%;
+    word-wrap: break-word;
 }
 .user {
-    background-color: #e0f7fa;
+    background-color: #3b82f6;
     margin-left: auto;
     text-align: right;
 }
 .bot {
-    background-color: #f1f8e9;
+    background-color: #4b5563;
     margin-right: auto;
     text-align: left;
 }
-.jira-link {
-    font-size: 0.8em;
-    color: #007bff;
-    margin-top: 5px;
+.messages::-webkit-scrollbar {
+    width: 8px;
 }
-.input-area {
-    display: flex;
-    gap: 10px;
-}
-.input-area input {
-    flex-grow: 1;
-    padding: 10px;
-    border: 1px solid #ccc;
+.messages::-webkit-scrollbar-thumb {
+    background-color: #4a5568; 
     border-radius: 4px;
-}
-.input-area button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-}
-.input-area button:disabled {
-    background-color: #a0c4ff;
-    cursor: not-allowed;
-}
-.error-message {
-    color: red;
-    margin-top: 10px;
 }
 </style>

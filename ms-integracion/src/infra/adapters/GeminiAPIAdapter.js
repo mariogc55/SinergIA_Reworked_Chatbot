@@ -18,7 +18,7 @@ function initializeGeminiClient() {
             let apiKey = Secrets.getGeminiApiKey();
 
             if (!apiKey) {
-                throw new Error('Gestion de ti es una mierda');
+                throw new Error('No se pudo obtener el API de Gemini');
             }
 
             aiInstance = new GoogleGenerativeAI(apiKey);
