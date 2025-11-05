@@ -21,12 +21,12 @@
       </div>
 
       <nav class="p-4 space-y-2">
-        <a href="https://jira.example.com/tasks" target="_blank" class="flex items-center p-2 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-blue-400 transition duration-150 whitespace-nowrap">
+        <a href="https://jiratmario-1761276751230.atlassian.net/jira/software/projects/KAN/list" target="_blank" class="flex items-center p-2 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-blue-400 transition duration-150 whitespace-nowrap">
           <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2m-9 0V3h4v2m-4 0h4"></path></svg>
           <span v-if="isSidebarOpen" class="ml-3">Tareas Jira</span>
         </a>
 
-        <a href="https://jira.example.com/priorities" target="_blank" class="flex items-center p-2 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-blue-400 transition duration-150 whitespace-nowrap">
+        <a href="https://jiratmario-1761276751230.atlassian.net/jira/software/projects/KAN/summary" target="_blank" class="flex items-center p-2 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-blue-400 transition duration-150 whitespace-nowrap">
           <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
           <span v-if="isSidebarOpen" class="ml-3">Prioridades Jira</span>
         </a>
