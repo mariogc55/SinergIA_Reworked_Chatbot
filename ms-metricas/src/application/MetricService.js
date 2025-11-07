@@ -1,5 +1,5 @@
-import { PSPCalculator } from "./calculators/PSPCalculator";
-import { EVMCalculator } from "./calculators/EVMCalculator";
+import { PSPCalculator } from "./calculators/PSPCalculator.js";
+import { EVMCalculator } from "./calculators/EVMCalculator.js";
 
 export class MetricService {
     constructor(metricRepository) {

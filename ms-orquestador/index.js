@@ -1,57 +1,58 @@
-
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-
-const express = require('express');
-const cors = require('cors');
-
-import { IntegrationService } from './src/infra/integrations/IntegrationService.js'; 
+import express from 'express';
+import { createProxyMiddleware } from 'http-proxy-middleware';
+import cors from 'cors';
 
 const app = express();
-const PORT = process.env.ORCHESTRATOR_PORT || 3000; 
+const PORT = 3000;
 
 app.use(cors());
+
 app.use(express.json());
 
-app.get('/status', (req, res) => {
-    res.json({ 
-        status: 'OK', 
-        service: 'MS-Orquestador', 
-        message: 'API Gateway activo. Listo para conectar el Frontend con los Microservicios.'
-    });
-});
+app.use(
+  '/api/v1/metrics',
+  (req, res, next) => {
+    console.log(`[ORQUESTADOR-1] Solicitud recibida: ${req.baseUrl}${req.url} Metodo: ${req.method}.`);
+    console.log(`[ORQUESTADOR-1] Cuerpo (req.body):`, req.body);
+    next();
+  },
+  createProxyMiddleware({
+    target: 'http://localhost:3002', 
+    changeOrigin: true,
+    proxyTimeout: 10000, 
+    pathRewrite: {
+      '^/api/v1/metrics': '', 
+    },
+    onProxyReq: (proxyReq, req, res) => {
+        if (req.body && (req.method === 'POST' || req.method === 'PUT')) {
+            const bodyData = JSON.stringify(req.body);
+            proxyReq.setHeader('Content-Type', 'application/json');
+            proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+            proxyReq.write(bodyData);
+        }
+        proxyReq.setHeader('Host', 'localhost:3002');
+    },
+    onError: (err, req, res) => {
+        console.error(`[ORQUESTADOR-3] Error de Proxy a 3002: ${err.code}. MS-Métricas no respondió.`);
+        res.status(503).json({ error: 'Servicio de métricas no disponible (MS-Métricas caído).' });
+    },
+  })
+);
 
-app.post('/api/v1/automate', async (req, res) => {
-    const { prompt, userId } = req.body;
-
-    if (!prompt || !userId) {
-        return res.status(400).json({ message: "Faltan 'prompt' o 'userId' en la solicitud." });
-    }
-
-    console.log(`[ORQUESTADOR] Recibida solicitud de ${userId}: "${prompt}"`);
-
-    try {
-        const structuredTask = await IntegrationService.analyzePrompt(prompt);
-        console.log('[ORQ] Tarea estructurada por IA:', structuredTask);
-        
-        const jiraResult = await IntegrationService.createJiraIssue(structuredTask);
-        console.log('[ORQ] Tarea creada en Jira:', jiraResult.jiraKey);
-
-        res.status(200).json({ 
-            message: `Tarea creada y registrada en Jira. La IA identificó la solicitud como: ${structuredTask.summary}.`, 
-            jiraKey: jiraResult.jiraKey,
-            jiraUrl: jiraResult.jiraUrl 
-        });
-
-    } catch (error) {
-        console.error("[ORQ ERROR] Fallo en la orquestación. Asegure que el MS-Integración esté 100% activo.", error.message);
-        res.status(500).json({ 
-            message: "Error en el flujo de automatización. Verifique la consola del MS-Orquestador y el MS-Integración." 
-        });
-    }
-});
+app.use(
+  '/api/v1/orchestrator/automation',
+  createProxyMiddleware({
+    target: 'http://localhost:3001', 
+    changeOrigin: true,
+    pathRewrite: {
+      '^/api/v1/orchestrator': '/api/v1/integracion', 
+    },
+    onError: (err, req, res) => {
+        res.status(503).json({ error: 'Servicio de automatización no disponible (MS-Integración caído).' });
+    },
+  })
+);
 
 app.listen(PORT, () => {
-    console.log(`MS-Orquestador corriendo en http://localhost:${PORT}`);
-    console.log("Servicios de soporte (3001, 3002) deben estar activos.");
+  console.log(`MS-Orquestador corriendo en http://localhost:${PORT}`);
 });

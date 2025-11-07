@@ -1,4 +1,3 @@
-// AutomationController.js (Controlador que recibe la petición del Frontend)
 import { AutomationService } from "../../application/AutomationService";
 
 export const AutomationController = () => {

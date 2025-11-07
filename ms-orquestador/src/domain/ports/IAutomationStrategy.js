@@ -1,4 +1,3 @@
-// IAutomationStrategy.js (Patrón STRATEGY - Puerto)
 export class IAutomationStrategy {
     constructor() {
         if (new.target === IAutomationStrategy) {

@@ -1,5 +1,5 @@
-import { IMetricRepository } from "../../domain/ports/IMetricRepository";
-import { pool } from "../db/connection"
+import { IMetricRepository } from "../../domain/ports/IMetricRepository.js";
+import { pool } from "../db/connection.js"
 
 export class PostgresMetricRepository extends IMetricRepository {
     constructor() {

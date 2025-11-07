@@ -1,29 +1,24 @@
 <template>
   <div class="chat-container bg-gray-800 text-white shadow-2xl rounded-xl">
-    <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">SinergIA: Asistente de Proyectos (Usuario: {{ authStore.getCurrentUserId }})</h2>
+    <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">SinergIA: Asistente de Proyectos (Usuario: {{ authStore.user?.name || 'Invitado' }})</h2>
     
     <div class="messages bg-gray-700 rounded-lg p-3">
-      <div v-for="(msg, index) in messages" :key="index" :class="['message', msg.type]">
-        <p>{{ msg.text }}</p>
-        <p v-if="msg.jiraKey" class="jira-link text-blue-400 text-sm mt-1">
-          Tarea Creada: <a :href="msg.jiraUrl" target="_blank" class="hover:underline">{{ msg.jiraKey }}</a>
-        </p>
-      </div>
     </div>
     
     <div class="input-area flex gap-3 mt-4">
       <input 
         v-model="prompt" 
         @keyup.enter="sendMessage" 
-        :disabled="isLoading" 
-        placeholder="Ej: 'Crear tarea: Construye el programa. Proyecto KAN'"
+        :disabled="isLoading || !authStore.isLoggedIn" 
+        :placeholder="authStore.isLoggedIn ? 'Ej: Crear tarea: Construye el programa. Proyecto KAN' : 'Inicia sesión para usar el chat.'"
         class="flex-grow p-3 border border-gray-600 rounded-lg bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
-      <button @click="sendMessage" :disabled="isLoading" class="px-6 py-3 border-none rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition duration-150 disabled:bg-blue-900 disabled:cursor-not-allowed">
+      <button @click="sendMessage" :disabled="isLoading || !authStore.isLoggedIn" class="px-6 py-3 border-none rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition duration-150 disabled:bg-blue-900 disabled:cursor-not-allowed">
         {{ isLoading ? 'Procesando...' : 'Enviar' }}
       </button>
     </div>
     <p v-if="error" class="error-message text-red-400 mt-2">Error: {{ error }}</p>
+    <p v-if="!authStore.isLoggedIn" class="error-message text-yellow-400 mt-2">Debes iniciar sesión para usar el Chatbot.</p>
   </div>
 </template>
 
@@ -49,7 +44,7 @@ export default {
   },
   methods: {
     async sendMessage() {
-      if (!this.prompt.trim() || this.isLoading) return;
+      if (!this.prompt.trim() || this.isLoading || !this.authStore.isLoggedIn) return;
 
       const userPrompt = this.prompt.trim();
       this.prompt = '';
@@ -59,7 +54,12 @@ export default {
       this.messages.push({ type: 'user', text: userPrompt });
 
       try {
-        const response = await AutomationService.triggerAutomation(userPrompt, this.authStore.getCurrentUserId);
+        const userId = this.authStore.getCurrentUserId; 
+        if (!userId) {
+          throw new Error("ID de usuario no encontrado. Vuelva a iniciar sesión.");
+        }
+        
+        const response = await AutomationService.triggerAutomation(userPrompt, userId);
         
         this.messages.push({ 
           type: 'bot', 
@@ -69,7 +69,6 @@ export default {
         });
 
       } catch (err) {
-        console.error("Error de Orquestación:", err);
         this.error = 'No se pudo conectar con el MS-Orquestador o la lógica de negocio falló.';
         this.messages.push({ type: 'bot', text: `Hubo un error en la automatización: ${err.message || 'Intente de nuevo.'}` });
       } finally {
