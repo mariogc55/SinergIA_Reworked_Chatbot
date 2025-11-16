@@ -61,8 +61,6 @@ export const JiraRestAdapter = {
         };
 
         try {
-//            console.log(AUTH_HEADER, ';asd')
-//IMPORTANTE PODER MANDAR DESDE EL CHAT SI ES UN ISSUE TAREA NORMAL O DEMAS Y CAMBIAR LA URL DEL ENDPOINT OSEA EL POST
 
             const response = await axios.post(JIRA_BASE_URL + '/rest/api/3/issue', issueData, {
                 headers: {

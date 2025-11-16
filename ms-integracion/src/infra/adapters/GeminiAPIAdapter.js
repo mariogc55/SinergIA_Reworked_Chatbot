@@ -51,7 +51,6 @@ export const GeminiAPIAdapter = {
         }
 
         try {
-            //const ai = initializeGeminiClient();
 
             const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
             const response = await ai.models.generateContent({

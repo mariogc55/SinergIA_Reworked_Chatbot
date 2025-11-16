@@ -65,7 +65,6 @@ export default {
             this.loadingMetrics = true;
             try {
                 const userId = this.authStore.getCurrentUserId;
-                // Axios enviará automáticamente el token configurado en authStore
                 const response = await axios.get(`${this.METRICS_URL}/${userId}`);
                 this.summary = response.data;
             } catch (error) {
