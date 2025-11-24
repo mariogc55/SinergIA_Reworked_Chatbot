@@ -1,14 +1,7 @@
 # Archivos de entorno
-.env
-.secrets.js
+
 /node_modules
 /ms-integracion/node_modules
 /ms-metricas/node_modules
 /ms-orquestacion/node_modules
 /ms-frontend-vue/node_modules
-
-**/*service-account*.json
-ms-integracion/**/secrets.js
-
-ms-integracion/src/gemini-service-account.json
-ms-integracion/src/infra/config/secrets.js
