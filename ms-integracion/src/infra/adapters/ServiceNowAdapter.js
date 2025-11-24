@@ -1,5 +1,5 @@
-import { IAuthService } from "../../domain/ports/IAuthService";
-import { Secrets } from "../config/secrets";
+import { IAuthService } from "../../domain/ports/IAuthService.js";
+import { Secrets } from "../config/secrets.js";
 import axios from 'axios';
 
 export class ServiceNowAdapter extends IAuthService {

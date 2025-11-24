@@ -1,11 +1,11 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-const JWT_SECRET = 'TU_SECRETO_DE_JWT';
+const JWT_SECRET = process.env.JWT_SECRET || 'sinergia_secret_dev_key';
 const SALT_ROUNDS = 10;
 
 const generateToken = (developerId, email, name) => {
-    return jwt.sign({ developer_id: developerId, email: email, name: name }, JWT_SECRET, {
+    return jwt.sign({ developerId, email, name }, JWT_SECRET, {
         expiresIn: '1d',
     });
 };

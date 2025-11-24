@@ -65,9 +65,17 @@ export default {
             this.loadingMetrics = true;
             try {
                 const userId = this.authStore.getCurrentUserId;
-                const response = await axios.get(`${this.METRICS_URL}/${userId}`);
+                const token = this.authStore.token;
+
+                const response = await axios.get(`${this.METRICS_URL}/${userId}`, {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                });
+
                 this.summary = response.data;
             } catch (error) {
+                console.error('Error al cargar métricas PSP:', error.response?.data || error.message);
                 this.summary = null;
             } finally {
                 this.loadingMetrics = false;

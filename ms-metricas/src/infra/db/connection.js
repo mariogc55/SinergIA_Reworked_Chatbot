@@ -18,6 +18,15 @@ const DDL_TABLES = `
         password VARCHAR(255) NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS timelogs (
+        id SERIAL PRIMARY KEY,
+        developer_id VARCHAR(10) REFERENCES users(developer_id),
+        project_key VARCHAR(50),
+        phase VARCHAR(50),
+        time_hours NUMERIC(5,2),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    
     CREATE TABLE IF NOT EXISTS log_times (
         log_id SERIAL PRIMARY KEY,
         developer_id VARCHAR(10) REFERENCES users(developer_id),
