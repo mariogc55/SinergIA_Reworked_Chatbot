@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const ORCHESTRATOR_BASE_URL = 'http://localhost:3000/api/v1/orchestrator';
+const ORCHESTRATOR_BASE_URL = 'http://localhost:3001/api/v1/orchestrator';
 
 export const AutomationService = {
   /**

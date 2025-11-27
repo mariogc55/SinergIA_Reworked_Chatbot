@@ -1,4 +1,5 @@
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { Secrets } from "../config/secrets.js";
 
 export const GeminiAPIAdapter = {
 
@@ -12,36 +13,37 @@ export const GeminiAPIAdapter = {
     }
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const genAI = new GoogleGenerativeAI(Secrets.getGeminiApiKey());
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: [
-          { role: "user", parts: [{ text: prompt }] }
-        ],
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "object",
-            properties: {
-              summary: { type: "string" },
-              description: { type: "string" },
-              priority: { type: "string", enum: ["High", "Medium", "Low"] },
-              issueType: { type: "string", enum: ["Bug", "Story", "Task"] },
-              projectKey: { type: "string" }
-            },
-            required: ["summary", "description", "priority", "issueType", "projectKey"]
+      const response = await model.generateContent([
+        {
+          text: `
+          Analiza este requerimiento y devuelve SOLO un JSON válido sin texto adicional.
+
+          Estructura del JSON:
+          {
+            "summary": "",
+            "description": "",
+            "priority": "High | Medium | Low",
+            "issueType": "Task | Bug | Story",
+            "projectKey": ""
           }
-        }
-      });
 
-      const text = response.text;
-      console.log(text);
+          Prompt del usuario:
+          ${prompt}
+          `
+        }
+      ]);
+
+      const text = response.response.text();
+      console.log("[Gemini RAW RESPONSE]:", text);
+
       return JSON.parse(text);
 
     } catch (error) {
-      console.error("Error en la llamada a Gemini:", error.message);
-      throw new Error(`Error en el análisis de Gemini: ${error.message}.`);
+      console.error("Error en Gemini:", error);
+      throw new Error(`Error en el análisis de Gemini: ${error.message}`);
     }
   }
 };

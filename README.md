@@ -23,7 +23,7 @@ SinergIA se estructura en capas lógicas para segregar la lógica del negocio de
 | :--- | :--- | :--- | :--- |
 | **Frontend Vue.js** | Presentación | Interfaz de Chat/Dashboard (UX) | Vue.js, Pinia, Axios |
 | **MS-Orquestador** | Orquestación (Core) | **API Gateway** y Gestor de Flujo Central. Contiene la Lógica de Negocio y aplica el Patrón **Strategy**. | Node.js (Express/NestJS) |
-| **MS-Integración** | Adaptadores/Integración | Adaptadores para **APIs Externas** (Jira, Gemini, ServiceNow/Auth). Implementa Patrones **Adapter** y **Facade**. | Node.js (Express/NestJS), Axios, @google/genai |
+| **MS-Integración** | Adaptadores/Integración | Adaptadores para **APIs Externas** (Jira, Gemini, ServiceNow/Auth). Implementa Patrones **Adapter** y **Facade**. | Node.js (Express/NestJS), Axios, @google/generative-ai |
 | **MS-Métricas** | PSP/Monitoreo | Cálculo y reporte de métricas de calidad y desempeño (PSP/ISO/EVM). | Node.js (Express/NestJS), PostgreSQL (`pg`) |
 
 ### Patrones de Diseño Aplicados
