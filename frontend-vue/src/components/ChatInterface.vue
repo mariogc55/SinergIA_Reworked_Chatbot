@@ -3,6 +3,24 @@
     <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">SinergIA: Asistente de Proyectos (Usuario: {{ authStore.user?.name || 'Invitado' }})</h2>
     
     <div class="messages bg-gray-700 rounded-lg p-3">
+      <div
+        v-for="(msg, index) in messages"
+        :key="index"
+        class="message"
+        :class="msg.type"
+      >
+        <p>{{ msg.text }}</p>
+
+        <div v-if="msg.jiraUrl" class="mt-1">
+          <a
+            :href="msg.jiraUrl"
+            target="_blank"
+            class="text-blue-400 underline"
+          >
+            Ver en Jira ({{ msg.jiraKey }})
+          </a>
+        </div>
+      </div>
     </div>
     
     <div class="input-area flex gap-3 mt-4">

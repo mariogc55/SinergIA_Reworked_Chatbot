@@ -23,13 +23,33 @@ export class JiraRestAdapter {
         }
     }
 
+    convertDescriptionToADF(text) {
+        return {
+            type: "doc",
+            version: 1,
+            content: [
+                {
+                    type: "paragraph",
+                    content: [
+                        {
+                            type: "text",
+                            text
+                        }
+                    ]
+                }
+            ]
+        };
+    }
+
     async createIssue(taskDetails) {
 
         const issueData = {
             fields: {
                 project: { key: taskDetails.projectKey || 'KAN' },
                 summary: taskDetails.summary,
-                description: taskDetails.description,
+
+                description: this.convertDescriptionToADF(taskDetails.description),
+
                 issuetype: { name: taskDetails.issueType },
                 priority: { name: taskDetails.priority }
             }
