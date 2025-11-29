@@ -1,7 +1,5 @@
 import axios from 'axios';
 
-// Servicio de autenticación (login / register)
-// Apunta al backend de métricas en el puerto 3002
 const API_BASE_URL = 'http://localhost:3002/api/v1/metrics';
 
 const axiosInstance = axios.create({
