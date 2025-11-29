@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '@/views/HomeView.vue';
 import ChatbotView from '@/views/ChatbotView.vue';
 import ReportsView from '@/views/ReportsView.vue';
+import StatusView from '@/views/StatusView.vue';
 import AuthView from '@/views/AuthView.vue';
 import { useAuthStore } from '@/stores/authStore';
 
@@ -11,27 +12,33 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView
+      component: HomeView,
     },
     {
       path: '/chat',
       name: 'chat',
       component: ChatbotView,
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
     },
     {
       path: '/reports',
       name: 'reports',
       component: ReportsView,
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
     },
     {
-      path: '/auth/:view(login|register)',
+      path: '/status',
+      name: 'status',
+      component: StatusView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/auth/:view?',
       name: 'auth',
       component: AuthView,
-      props: true 
-    }
-  ]
+      props: true,
+    },
+  ],
 });
 
 router.beforeEach((to, from, next) => {
