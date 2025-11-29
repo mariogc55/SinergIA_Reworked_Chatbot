@@ -16,12 +16,10 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// 🔹 Rutas principales de integración (IA + Jira + ServiceNow)
 app.use('/api/v1/integracion', geminiRoutes);
 app.use('/api/v1/integracion', jiraRoutes);
 app.use('/api/v1/integracion', automationRoutes);
 
-// 🔹 Construye el objeto de health compartido
 function buildHealth() {
   const problems = [];
 
@@ -74,19 +72,16 @@ function buildHealth() {
   };
 }
 
-// 🔹 /status (compatibilidad)
 app.get('/status', (req, res) => {
   const result = buildHealth();
   res.status(result.httpStatus).json(result.body);
 });
 
-// 🔹 /health (para el orquestador)
 app.get('/health', (req, res) => {
   const result = buildHealth();
   res.status(result.httpStatus).json(result.body);
 });
 
-// 🔹 Arranque del microservicio
 try {
   const key = Secrets.getGeminiApiKey();
   if (!key) {
