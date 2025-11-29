@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// El orquestador expone la automatización en este endpoint
 const ORCHESTRATOR_BASE_URL = 'http://localhost:3000/api/v1/orchestrator';
 
 export const AutomationService = {
