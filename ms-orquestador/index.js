@@ -9,7 +9,6 @@ const PORT = process.env.ORCHESTRATOR_PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// 🔹 Definición de servicios monitoreados por el orquestador
 const SERVICES = [
   {
     key: 'orchestrator',
@@ -30,13 +29,11 @@ const SERVICES = [
   },
 ];
 
-// 🔹 Endpoint de estado global consumido por la vista /status del frontend
 app.get('/api/v1/status', async (req, res) => {
   const checkedAt = new Date().toISOString();
 
   const results = await Promise.all(
     SERVICES.map(async (service) => {
-      // El propio orquestador se considera "UP" mientras este endpoint responda
       if (service.type === 'internal') {
         return {
           ...service,
@@ -88,7 +85,6 @@ app.get('/api/v1/status', async (req, res) => {
   });
 });
 
-// 🔹 Middleware simple de log
 const createLogMiddleware = (tag) => (req, res, next) => {
   console.log(
     `[${tag}] Solicitud recibida: ${req.baseUrl}${req.url} Metodo: ${req.method}.`
@@ -97,7 +93,6 @@ const createLogMiddleware = (tag) => (req, res, next) => {
   next();
 };
 
-// 🔹 Proxy hacia MS-Métricas (mantengo etiqueta ORQUESTADOR-1 como ya la veías)
 app.use(
   '/api/v1/metrics',
   createLogMiddleware('ORQUESTADOR-1'),
@@ -113,7 +108,6 @@ app.use(
   })
 );
 
-// 🔹 Proxy hacia MS-Integración
 app.use(
   '/api/v1/orchestrator',
   createLogMiddleware('ORQUESTADOR-2'),
