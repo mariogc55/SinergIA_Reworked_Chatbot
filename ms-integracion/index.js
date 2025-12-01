@@ -91,7 +91,6 @@ app.get('/health', (req, res) => {
   res.status(result.httpStatus).json(result.body);
 });
 
-
 app.use((err, req, res, next) => {
   console.error('[MS-Integración] Error no controlado:', err);
   res.status(500).json({
@@ -101,7 +100,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Bootstrap
 try {
   const key = Secrets.getGeminiApiKey();
   if (!key) {

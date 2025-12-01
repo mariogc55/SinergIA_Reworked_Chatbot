@@ -11,9 +11,6 @@ const axiosInstance = axios.create({
 });
 
 export const AuthService = {
-  /**
-   * @param {string} token
-   */
   setAuthHeader(token) {
     if (token) {
       axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -22,19 +19,10 @@ export const AuthService = {
     }
   },
 
-  /**
-   * Limpia el header 
-   */
   clearAuthHeader() {
     delete axiosInstance.defaults.headers.common['Authorization'];
   },
 
-  /**
-   * Login de usuario
-   * @param {string} email
-   * @param {string} password
-   * @returns {Promise<object>}
-   */
   async login(email, password) {
     try {
       const response = await axiosInstance.post('/auth/login', { email, password });
@@ -50,10 +38,6 @@ export const AuthService = {
     }
   },
 
-  /**
-   * @param {object} userData
-   * @returns {Promise<object>}
-   */
   async register(userData) {
     try {
       const response = await axiosInstance.post('/auth/register', userData);

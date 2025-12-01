@@ -114,7 +114,7 @@ app.post(
 
     try {
       const respuesta = await axios.post(targetUrl, req.body, {
-        timeout: 60000, // Evita que se quede colgado eternamente
+        timeout: 60000,
       });
 
       console.log(

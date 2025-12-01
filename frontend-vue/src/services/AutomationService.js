@@ -5,11 +5,6 @@ const ORCHESTRATOR_BASE_URL =
   'http://localhost:3000/api/v1/orchestrator';
 
 export const AutomationService = {
-  /**
-   * @param {string} prompt
-   * @param {string} userId
-   * @returns {Promise<object>}
-   */
   async triggerAutomation(prompt, userId) {
     try {
       const response = await axios.post(`${ORCHESTRATOR_BASE_URL}/automation`, {
@@ -27,9 +22,7 @@ export const AutomationService = {
       const data = error.response?.data;
 
       const errorMessage =
-        // Preferimos mensajes que mande el backend
         (data && (data.error || data.message || data.detail)) ||
-        // Si no hay response, probablemente es un problema de red
         (!error.response
           ? 'Error de red: No se pudo conectar con el servidor.'
           : 'Error desconocido en el orquestador.');
