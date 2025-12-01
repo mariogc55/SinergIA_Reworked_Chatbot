@@ -23,16 +23,22 @@ export const AuthService = {
     delete axiosInstance.defaults.headers.common['Authorization'];
   },
 
+  removeAuthHeader() {
+    delete axiosInstance.defaults.headers.common['Authorization'];
+  },
+
   async login(email, password) {
     try {
-      const response = await axiosInstance.post('/auth/login', { email, password });
+      const response = await axiosInstance.post('/auth/login', {
+        email,
+        password,
+      });
       return response.data;
     } catch (error) {
       console.error('Error en login:', error.response?.data || error.message);
-
       throw (
         error.response?.data || {
-          error: 'Error de conexión. Por favor, verifica tus credenciales.',
+          error: 'Error de conexión o credenciales inválidas.',
         }
       );
     }
@@ -44,7 +50,6 @@ export const AuthService = {
       return response.data;
     } catch (error) {
       console.error('Error en registro:', error.response?.data || error.message);
-
       throw (
         error.response?.data || {
           error: 'Error de conexión o el usuario ya existe.',

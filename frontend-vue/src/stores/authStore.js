@@ -7,6 +7,7 @@ export const useAuthStore = defineStore('auth', {
     user: null,
     token: null,
   }),
+
   actions: {
     setAuth(userData, token) {
       this.isAuthenticated = true;
@@ -20,7 +21,7 @@ export const useAuthStore = defineStore('auth', {
       localStorage.setItem('sinergia_auth', 'true');
       localStorage.setItem('sinergia_user', JSON.stringify(this.user));
       localStorage.setItem('sinergia_token', token);
-      
+
       AuthService.setAuthHeader(token);
     },
 
@@ -43,7 +44,7 @@ export const useAuthStore = defineStore('auth', {
       localStorage.removeItem('sinergia_user');
       localStorage.removeItem('sinergia_token');
 
-      AuthService.removeAuthHeader();
+      AuthService.clearAuthHeader();
     },
 
     initializeAuth() {
@@ -52,19 +53,25 @@ export const useAuthStore = defineStore('auth', {
       const token = localStorage.getItem('sinergia_token');
 
       if (auth === 'true' && userStr && token) {
-        const user = JSON.parse(userStr);
-        this.isAuthenticated = true;
-        this.user = user;
-        this.token = token;
-        AuthService.setAuthHeader(token);
+        try {
+          const user = JSON.parse(userStr);
+          this.isAuthenticated = true;
+          this.user = user;
+          this.token = token;
+          AuthService.setAuthHeader(token);
+        } catch (err) {
+          console.error('Error parseando usuario de localStorage:', err);
+          this.logout();
+        }
       } else {
         this.logout();
       }
-    }
+    },
   },
+
   getters: {
     isLoggedIn: (state) => state.isAuthenticated,
     getCurrentUserId: (state) => state.user?.developerId,
     getCurrentUserEmail: (state) => state.user?.email,
-  }
+  },
 });
