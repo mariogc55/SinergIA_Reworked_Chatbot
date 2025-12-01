@@ -26,7 +26,8 @@
     <div class="input-area flex gap-3 mt-4">
       <input 
         v-model="prompt" 
-        @keyup.enter="sendMessage" 
+        @keyup.enter="sendMessage"
+        maxlength="300"
         :disabled="isLoading || !authStore.isLoggedIn" 
         :placeholder="authStore.isLoggedIn ? 'Ej: Crear tarea: Construye el programa. Proyecto KAN' : 'Inicia sesión para usar el chat.'"
         class="flex-grow p-3 border border-gray-600 rounded-lg bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -35,6 +36,7 @@
         {{ isLoading ? 'Procesando...' : 'Enviar' }}
       </button>
     </div>
+    <p class="text-gray-400 text-sm mt-1">{{ prompt.length }}/300 caracteres</p>
     <p v-if="error" class="error-message text-red-400 mt-2">Error: {{ error }}</p>
     <p v-if="!authStore.isLoggedIn" class="error-message text-yellow-400 mt-2">Debes iniciar sesión para usar el Chatbot.</p>
   </div>
@@ -65,6 +67,12 @@ export default {
       if (!this.prompt.trim() || this.isLoading || !this.authStore.isLoggedIn) return;
 
       const userPrompt = this.prompt.trim();
+
+      if (userPrompt.length > 300) {
+        this.error = "El mensaje excede el límite de 300 caracteres.";
+        return;
+      }
+
       this.prompt = '';
       this.error = null;
       this.isLoading = true;
