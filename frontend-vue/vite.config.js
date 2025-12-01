@@ -5,6 +5,8 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: './', // Esto asegura que todas las rutas sean relativas al index.html
+  
   plugins: [
     vue(),
   ],
