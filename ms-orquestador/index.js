@@ -6,7 +6,18 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 const app = express();
 const PORT = process.env.ORCHESTRATOR_PORT || 3000;
 
-app.use(cors());
+const INTEGRACION_BASE_URL =
+  process.env.INTEGRATION_BASE_URL || 'http://localhost:3001';
+const METRICAS_BASE_URL =
+  process.env.METRICS_BASE_URL || 'http://localhost:3002';
+
+app.disable('x-powered-by');
+
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || '*',
+  })
+);
 app.use(express.json());
 
 const SERVICES = [
@@ -19,13 +30,13 @@ const SERVICES = [
     key: 'integracion',
     name: 'MS-Integración',
     type: 'http',
-    url: 'http://localhost:3001/health',
+    url: `${INTEGRACION_BASE_URL}/health`,
   },
   {
     key: 'metricas',
     name: 'MS-Métricas (PSP)',
     type: 'http',
-    url: 'http://localhost:3002/health',
+    url: `${METRICAS_BASE_URL}/health`,
   },
 ];
 
@@ -93,11 +104,47 @@ const createLogMiddleware = (tag) => (req, res, next) => {
   next();
 };
 
+app.post(
+  '/api/v1/orchestrator/automation',
+  createLogMiddleware('ORQUESTADOR-AUTO'),
+  async (req, res) => {
+    console.log('[ORQUESTADOR-AUTO] Redirigiendo petición de automatización...');
+
+    const targetUrl = `${INTEGRACION_BASE_URL}/api/v1/integracion/automation`;
+
+    try {
+      const respuesta = await axios.post(targetUrl, req.body, {
+        timeout: 60000, // Evita que se quede colgado eternamente
+      });
+
+      console.log(
+        '[ORQUESTADOR-AUTO] Respuesta de ms-integracion:',
+        respuesta.status
+      );
+
+      return res.status(respuesta.status).json(respuesta.data);
+    } catch (error) {
+      const statusCode = error.response?.status || 500;
+      const detail = error.response?.data || error.message;
+
+      console.error(
+        '[ORQUESTADOR-AUTO] Error llamando a ms-integracion:',
+        detail
+      );
+
+      return res.status(statusCode).json({
+        error: 'Error al procesar la automatización en el orquestador.',
+        detail,
+      });
+    }
+  }
+);
+
 app.use(
   '/api/v1/metrics',
   createLogMiddleware('ORQUESTADOR-1'),
   createProxyMiddleware({
-    target: 'http://localhost:3002',
+    target: METRICAS_BASE_URL,
     changeOrigin: true,
     onError: (err, req, res) => {
       console.error('[ORQUESTADOR-1] Error en proxy métricas:', err.message);
@@ -112,7 +159,7 @@ app.use(
   '/api/v1/orchestrator',
   createLogMiddleware('ORQUESTADOR-2'),
   createProxyMiddleware({
-    target: 'http://localhost:3001',
+    target: INTEGRACION_BASE_URL,
     changeOrigin: true,
     pathRewrite: {
       '^/api/v1/orchestrator': '/api/v1/integracion',
@@ -126,9 +173,18 @@ app.use(
   })
 );
 
+app.use((err, req, res, next) => {
+  console.error('[MS-Orquestador] Error no controlado:', err);
+  res.status(500).json({
+    service: 'ms-orquestador',
+    status: 'ERROR',
+    message: 'Error interno del servidor en MS-Orquestador.',
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`MS-Orquestador corriendo en http://localhost:${PORT}`);
-  console.log('Proxy /api/v1/orchestrator -> MS-Integración');
-  console.log('Proxy /api/v1/metrics -> MS-Métricas');
+  console.log(`Proxy /api/v1/orchestrator -> ${INTEGRACION_BASE_URL}`);
+  console.log(`Proxy /api/v1/metrics -> ${METRICAS_BASE_URL}`);
   console.log('Estado global de servicios en /api/v1/status');
 });

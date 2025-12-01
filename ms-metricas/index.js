@@ -4,9 +4,16 @@ import { initializeDatabase, pool } from './src/infra/db/connection.js';
 import { apiRouter } from './src/routes/api.routes.js';
 
 const app = express();
-const PORT = 3002;
+const PORT = process.env.METRICS_PORT || 3002;
 
-app.use(cors());
+app.disable('x-powered-by');
+
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || '*',
+  })
+);
+
 app.use(express.json());
 
 app.use('/api/v1/metrics', apiRouter);
@@ -40,6 +47,15 @@ app.get('/health', async (req, res) => {
   }
 });
 
+app.use((err, req, res, next) => {
+  console.error('[MS-Métricas] Error no controlado:', err);
+  res.status(500).json({
+    service: 'ms-metricas',
+    status: 'ERROR',
+    message: 'Error interno del servidor en MS-Métricas.',
+  });
+});
+
 async function startServer() {
   try {
     await initializeDatabase();
@@ -54,4 +70,22 @@ async function startServer() {
   }
 }
 
+function setupGracefulShutdown() {
+  const shutdown = async (signal) => {
+    console.log(`\n[MS-Métricas] Recibida señal ${signal}. Cerrando pool de BD...`);
+    try {
+      await pool.end();
+      console.log('[MS-Métricas] Pool de BD cerrado correctamente.');
+    } catch (err) {
+      console.error('[MS-Métricas] Error cerrando pool de BD:', err);
+    } finally {
+      process.exit(0);
+    }
+  };
+
+  process.on('SIGINT', () => shutdown('SIGINT'));
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+}
+
 startServer();
+setupGracefulShutdown();

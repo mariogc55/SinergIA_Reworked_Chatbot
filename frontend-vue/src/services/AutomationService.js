@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const ORCHESTRATOR_BASE_URL = 'http://localhost:3000/api/v1/orchestrator';
+const ORCHESTRATOR_BASE_URL =
+  import.meta.env.VITE_ORCHESTRATOR_URL ||
+  'http://localhost:3000/api/v1/orchestrator';
 
 export const AutomationService = {
   /**
@@ -11,7 +13,7 @@ export const AutomationService = {
   async triggerAutomation(prompt, userId) {
     try {
       const response = await axios.post(`${ORCHESTRATOR_BASE_URL}/automation`, {
-        prompt: prompt,
+        prompt,
         user_id: userId,
       });
 
@@ -19,12 +21,18 @@ export const AutomationService = {
     } catch (error) {
       console.error(
         'Error en la llamada al MS-Orquestador:',
-        error.response ? error.response.data : error.message
+        error.response?.data || error.message
       );
 
-      const errorMessage = error.response
-        ? error.response.data.error || 'Error desconocido en el orquestador.'
-        : 'Error de red: No se pudo conectar con el servidor.';
+      const data = error.response?.data;
+
+      const errorMessage =
+        // Preferimos mensajes que mande el backend
+        (data && (data.error || data.message || data.detail)) ||
+        // Si no hay response, probablemente es un problema de red
+        (!error.response
+          ? 'Error de red: No se pudo conectar con el servidor.'
+          : 'Error desconocido en el orquestador.');
 
       throw new Error(errorMessage);
     }

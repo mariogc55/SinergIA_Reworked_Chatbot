@@ -12,13 +12,22 @@ import automationRoutes from './src/routes/automation.routes.js';
 const app = express();
 const PORT = Secrets.getIntegrationPort();
 
-app.use(cors());
+app.disable('x-powered-by');
+
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || '*',
+  })
+);
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-app.use('/api/v1/integracion', geminiRoutes);
-app.use('/api/v1/integracion', jiraRoutes);
-app.use('/api/v1/integracion', automationRoutes);
+const BASE_PATH = '/api/v1/integracion';
+
+app.use(BASE_PATH, geminiRoutes);
+app.use(BASE_PATH, jiraRoutes);
+app.use(BASE_PATH, automationRoutes);
 
 function buildHealth() {
   const problems = [];
@@ -82,6 +91,17 @@ app.get('/health', (req, res) => {
   res.status(result.httpStatus).json(result.body);
 });
 
+
+app.use((err, req, res, next) => {
+  console.error('[MS-Integración] Error no controlado:', err);
+  res.status(500).json({
+    service: 'ms-integracion',
+    status: 'ERROR',
+    message: 'Error interno del servidor en MS-Integración.',
+  });
+});
+
+// Bootstrap
 try {
   const key = Secrets.getGeminiApiKey();
   if (!key) {
