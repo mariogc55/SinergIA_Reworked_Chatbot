@@ -3,12 +3,14 @@ import pg from 'pg';
 const { Pool } = pg;
 
 export const pool = new Pool({
-
-    user: process.env.POSTGRES_USER || 'sinergia_user',
-    host: process.env.POSTGRES_HOST || 'localhost',
-    database: process.env.POSTGRES_DATABASE || 'sinergia_metrics',
-    password: process.env.POSTGRES_PASSWORD || 'password',
-    port: process.env.PGPORT || 5432, // O POSTGRES_PORT si Supabase lo usa
+    user: 'neondb_owner',
+    host: 'ep-small-mountain-ah4a0slf-pooler.c-3.us-east-1.aws.neon.tech',
+    database: 'neondb',
+    password: 'npg_FzZSg4X7weuL',
+    port: 5432,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 const DDL_TABLES = `
@@ -18,7 +20,7 @@ const DDL_TABLES = `
         email VARCHAR(100) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL
     );
-    -- ... (el resto de tus tablas DDL)
+
     CREATE TABLE IF NOT EXISTS timelogs (
         id SERIAL PRIMARY KEY,
         developer_id VARCHAR(10) REFERENCES users(developer_id),
@@ -45,11 +47,9 @@ const DDL_TABLES = `
 export async function initializeDatabase() {
     try {
         const client = await pool.connect();
+        await client.query(DDL_TABLES);
         client.release(); 
-        await pool.query(DDL_TABLES);
-        console.log("Tablas DDL verificadas/creadas con éxito.");
-    } catch (err) {
-        console.error("Error al inicializar la base de datos:", err.message);
-        throw new Error("Fallo en la conexión o creación de tablas de la base de datos.");
+    } catch (err) { 
+        throw new Error("Fallo en la conexión a la base de datos o en la creación de tablas.");
     }
 }
