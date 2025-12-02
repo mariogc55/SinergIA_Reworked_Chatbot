@@ -4,11 +4,11 @@ const { Pool } = pg;
 
 export const pool = new Pool({
 
-    user: process.env.PGUSER || 'sinergia_user',
-    host: process.env.PGHOST || 'localhost',
-    database: process.env.PGDATABASE || 'sinergia_metrics',
-    password: process.env.PGPASSWORD || 'password',
-    port: process.env.PGPORT || 5432,
+    user: process.env.POSTGRES_USER || 'sinergia_user',
+    host: process.env.POSTGRES_HOST || 'localhost',
+    database: process.env.POSTGRES_DATABASE || 'sinergia_metrics',
+    password: process.env.POSTGRES_PASSWORD || 'password',
+    port: process.env.PGPORT || 5432, // O POSTGRES_PORT si Supabase lo usa
 });
 
 const DDL_TABLES = `
@@ -18,7 +18,7 @@ const DDL_TABLES = `
         email VARCHAR(100) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL
     );
-
+    -- ... (el resto de tus tablas DDL)
     CREATE TABLE IF NOT EXISTS timelogs (
         id SERIAL PRIMARY KEY,
         developer_id VARCHAR(10) REFERENCES users(developer_id),
