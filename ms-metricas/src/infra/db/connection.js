@@ -3,11 +3,12 @@ import pg from 'pg';
 const { Pool } = pg;
 
 export const pool = new Pool({
-    user: 'sinergia_user',
-    host: 'localhost',
-    database: 'sinergia_metrics',
-    password: 'password',
-    port: 5432,
+
+    user: process.env.PGUSER || 'sinergia_user',
+    host: process.env.PGHOST || 'localhost',
+    database: process.env.PGDATABASE || 'sinergia_metrics',
+    password: process.env.PGPASSWORD || 'password',
+    port: process.env.PGPORT || 5432,
 });
 
 const DDL_TABLES = `
@@ -46,7 +47,9 @@ export async function initializeDatabase() {
         const client = await pool.connect();
         client.release(); 
         await pool.query(DDL_TABLES);
+        console.log("Tablas DDL verificadas/creadas con éxito.");
     } catch (err) {
-        throw new Error("Fallo en la conexión a la base de datos.");
+        console.error("Error al inicializar la base de datos:", err.message);
+        throw new Error("Fallo en la conexión o creación de tablas de la base de datos.");
     }
 }
