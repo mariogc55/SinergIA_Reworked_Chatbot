@@ -1,142 +1,117 @@
 <template>
-  <div class="chat-container bg-gray-800 text-white shadow-2xl rounded-xl">
-    <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">SinergIA: Asistente de Proyectos (Usuario: {{ authStore.user?.name || 'Invitado' }})</h2>
-    
-    <div class="messages bg-gray-700 rounded-lg p-3">
-      <div
-        v-for="(msg, index) in messages"
-        :key="index"
-        class="message"
-        :class="msg.type"
-      >
-        <p>{{ msg.text }}</p>
+  <div class="chat-container bg-gray-800 text-white shadow-2xl rounded-xl p-4">
+    <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">
+      Asistente de Proyectos ({{ authStore.user?.name || 'Invitado' }})
+    </h2>
 
+    <div class="mb-4 p-4 bg-gray-700 rounded-lg border border-gray-600">
+        <h3 class="text-lg font-semibold mb-2 text-blue-400">Configuración de Jira</h3>
+        <p class="text-xs text-gray-300 mb-3">Ingresa tus credenciales para activar el chat.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+                <label class="block text-xs mb-1">Jira Site (subdominio)</label>
+                <input v-model="jiraConfig.site" type="text" placeholder="ej: mi-empresa" class="w-full p-2 rounded bg-gray-800 border border-gray-500 text-sm" />
+                <span class="text-[10px] text-gray-400">https://{{jiraConfig.site || '...'}}.atlassian.net</span>
+            </div>
+            <div>
+                <label class="block text-xs mb-1">Correo Electrónico</label>
+                <input v-model="jiraConfig.email" type="email" placeholder="usuario@email.com" class="w-full p-2 rounded bg-gray-800 border border-gray-500 text-sm" />
+            </div>
+            <div>
+                <label class="block text-xs mb-1">API Token</label>
+                <input v-model="jiraConfig.apiToken" type="password" placeholder="Pegar token aquí" class="w-full p-2 rounded bg-gray-800 border border-gray-500 text-sm" />
+            </div>
+        </div>
+    </div>
+
+    <div class="messages bg-gray-900 rounded-lg p-3 mb-4 h-64 overflow-y-auto border border-gray-700">
+      <div v-for="(msg, index) in messages" :key="index" class="message mb-2 p-2 rounded max-w-[85%]" 
+           :class="msg.type === 'user' ? 'bg-blue-600 ml-auto text-right' : 'bg-gray-600 mr-auto text-left'">
+        <p>{{ msg.text }}</p>
         <div v-if="msg.jiraUrl" class="mt-1">
-          <a
-            :href="msg.jiraUrl"
-            target="_blank"
-            class="text-blue-400 underline"
-          >
-            Ver en Jira ({{ msg.jiraKey }})
-          </a>
+          <a :href="msg.jiraUrl" target="_blank" class="text-blue-200 underline text-sm">Ver en Jira ({{ msg.jiraKey }})</a>
         </div>
       </div>
     </div>
     
-    <div class="input-area flex gap-3 mt-4">
+    <div class="input-area flex gap-3">
       <input 
         v-model="prompt" 
         @keyup.enter="sendMessage"
         maxlength="300"
-        :disabled="isLoading || !authStore.isLoggedIn" 
-        :placeholder="authStore.isLoggedIn ? 'Ej: Crear tarea: Construye el programa. Proyecto KAN' : 'Inicia sesión para usar el chat.'"
-        class="flex-grow p-3 border border-gray-600 rounded-lg bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        :disabled="isLoading || !isJiraConfigured" 
+        :placeholder="isJiraConfigured ? 'Ej: Crear tarea: Revisar base de datos en proyecto KAN' : 'Completa las credenciales de Jira arriba para comenzar.'"
+        class="flex-grow p-3 border border-gray-600 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
       />
-      <button @click="sendMessage" :disabled="isLoading || !authStore.isLoggedIn" class="px-6 py-3 border-none rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition duration-150 disabled:bg-blue-900 disabled:cursor-not-allowed">
-        {{ isLoading ? 'Procesando...' : 'Enviar' }}
+      <button 
+        @click="sendMessage" 
+        :disabled="isLoading || !isJiraConfigured" 
+        class="px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition disabled:bg-gray-600 disabled:cursor-not-allowed">
+        {{ isLoading ? '...' : 'Enviar' }}
       </button>
     </div>
-    <p class="text-gray-400 text-sm mt-1">{{ prompt.length }}/300 caracteres</p>
-    <p v-if="error" class="error-message text-red-400 mt-2">Error: {{ error }}</p>
-    <p v-if="!authStore.isLoggedIn" class="error-message text-yellow-400 mt-2">Debes iniciar sesión para usar el Chatbot.</p>
+    
+    <p v-if="error" class="text-red-400 mt-2 text-sm">Error: {{ error }}</p>
   </div>
 </template>
 
-<script>
-import { AutomationService } from '@/services/AutomationService'; 
+<script setup>
+import { ref, computed } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
+import { AutomationService } from '@/services/AutomationService';
 
-export default {
-  name: 'ChatInterface',
-  setup() {
-    const authStore = useAuthStore();
-    return { authStore };
-  },
-  data() {
-    return {
-      prompt: '',
-      messages: [
-        { type: 'bot', text: 'Hola, soy SinergIA. ¿En qué tarea de automatización puedo ayudarte hoy? (Ej: crear tarea, analizar riesgo).' }
-      ],
-      isLoading: false,
-      error: null
-    };
-  },
-  methods: {
-    async sendMessage() {
-      if (!this.prompt.trim() || this.isLoading || !this.authStore.isLoggedIn) return;
+const authStore = useAuthStore();
+const prompt = ref('');
+const messages = ref([{ type: 'bot', text: 'Hola. Configura tus credenciales de Jira arriba para empezar a gestionar tu proyecto.' }]);
+const isLoading = ref(false);
+const error = ref(null);
 
-      const userPrompt = this.prompt.trim();
+const jiraConfig = ref({
+    site: '',
+    email: '',
+    apiToken: ''
+});
 
-      if (userPrompt.length > 300) {
-        this.error = "El mensaje excede el límite de 300 caracteres.";
-        return;
-      }
+const isJiraConfigured = computed(() => {
+    return jiraConfig.value.site.length > 0 && 
+           jiraConfig.value.email.length > 0 && 
+           jiraConfig.value.apiToken.length > 0;
+});
 
-      this.prompt = '';
-      this.error = null;
-      this.isLoading = true;
+async function sendMessage() {
+    if (!prompt.value.trim() || isLoading.value || !isJiraConfigured.value) return;
 
-      this.messages.push({ type: 'user', text: userPrompt });
+    const userPrompt = prompt.value.trim();
+    prompt.value = '';
+    error.value = null;
+    isLoading.value = true;
 
-      try {
-        const userId = this.authStore.getCurrentUserId; 
-        if (!userId) {
-          throw new Error("ID de usuario no encontrado. Vuelva a iniciar sesión.");
-        }
+    messages.value.push({ type: 'user', text: userPrompt });
+
+    try {
+        const userId = authStore.getCurrentUserId;
         
-        const response = await AutomationService.triggerAutomation(userPrompt, userId);
-        
-        this.messages.push({ 
-          type: 'bot', 
-          text: response.message,
-          jiraKey: response.jiraKey,
-          jiraUrl: response.jiraUrl 
+        const response = await AutomationService.triggerAutomation(userPrompt, userId, jiraConfig.value);
+
+        messages.value.push({
+            type: 'bot',
+            text: response.message,
+            jiraKey: response.jiraKey,
+            jiraUrl: response.jiraUrl
         });
-
-      } catch (err) {
-        this.error = 'No se pudo conectar con el MS-Orquestador o la lógica de negocio falló.';
-        this.messages.push({ type: 'bot', text: `Hubo un error en la automatización: ${err.message || 'Intente de nuevo.'}` });
-      } finally {
-        this.isLoading = false;
-      }
+    } catch (err) {
+        error.value = err.message || 'Error en la comunicación.';
+        messages.value.push({ type: 'bot', text: 'Hubo un error procesando tu solicitud. Verifica tus credenciales.' });
+    } finally {
+        isLoading.value = false;
     }
-  }
-};
+}
 </script>
 
 <style scoped>
-.chat-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 25px;
-}
-.messages {
-    height: 60vh;
-    overflow-y: auto;
-}
-.message {
-    margin: 10px 0;
-    padding: 10px 15px;
-    border-radius: 20px;
-    max-width: 85%;
-    word-wrap: break-word;
-}
-.user {
-    background-color: #3b82f6;
-    margin-left: auto;
-    text-align: right;
-}
-.bot {
-    background-color: #4b5563;
-    margin-right: auto;
-    text-align: left;
-}
-.messages::-webkit-scrollbar {
-    width: 8px;
-}
-.messages::-webkit-scrollbar-thumb {
-    background-color: #4a5568; 
-    border-radius: 4px;
-}
+.chat-container { max-width: 900px; margin: 0 auto; height: 80vh; }
+.message { padding: 10px 15px; border-radius: 12px; max-width: 85%; word-wrap: break-word; }
+.user { background-color: #2563eb; margin-left: auto; text-align: right; }
+.bot { background-color: #374151; margin-right: auto; text-align: left; }
 </style>
