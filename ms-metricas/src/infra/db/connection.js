@@ -1,16 +1,26 @@
 import pg from 'pg';
+import 'dotenv/config';
 
 const { Pool } = pg;
 
+// export const pool = new Pool({
+//     user: 'neondb_owner',
+//     host: 'ep-small-mountain-ah4a0slf-pooler.c-3.us-east-1.aws.neon.tech',
+//     database: 'neondb',
+//     password: 'npg_FzZSg4X7weuL',
+//     port: 5432,
+//     ssl: {
+//         rejectUnauthorized: false
+//     }
+// });
+
+const connectionString = process.env.DATABASE_URL
+
+if (!connectionString) {
+    throw new Error('DATABASE_URL environment variable is not set.');
+}
 export const pool = new Pool({
-    user: 'neondb_owner',
-    host: 'ep-small-mountain-ah4a0slf-pooler.c-3.us-east-1.aws.neon.tech',
-    database: 'neondb',
-    password: 'npg_FzZSg4X7weuL',
-    port: 5432,
-    ssl: {
-        rejectUnauthorized: false
-    }
+    connectionString: connectionString
 });
 
 const DDL_TABLES = `
@@ -48,8 +58,8 @@ export async function initializeDatabase() {
     try {
         const client = await pool.connect();
         await client.query(DDL_TABLES);
-        client.release(); 
-    } catch (err) { 
+        client.release();
+    } catch (err) {
         throw new Error("Fallo en la conexión a la base de datos o en la creación de tablas.");
     }
 }

@@ -110,7 +110,7 @@ async function sendMessage() {
 </script>
 
 <style scoped>
-.chat-container { max-width: 900px; margin: 0 auto; height: 80vh; }
+.chat-container { max-width: 900px; margin: 0 auto; height: 100%; }
 .message { padding: 10px 15px; border-radius: 12px; max-width: 85%; word-wrap: break-word; }
 .user { background-color: #2563eb; margin-left: auto; text-align: right; }
 .bot { background-color: #374151; margin-right: auto; text-align: left; }
