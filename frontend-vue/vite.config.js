@@ -5,17 +5,25 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: './', // Esto asegura que todas las rutas sean relativas al index.html
-  
+  base: './',
+
   plugins: [
     vue(),
   ],
+
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)) 
-    }
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
   },
+
   server: {
+    host: '0.0.0.0',
     port: 5173,
-  }
+    allowedHosts: [
+      'localhost',
+      '127.0.0.1',
+      'sinergia-reworked-chatbot-kfvt.onrender.com',
+    ],
+  },
 })
