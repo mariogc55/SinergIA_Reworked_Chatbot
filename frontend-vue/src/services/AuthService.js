@@ -3,6 +3,8 @@ import axios from 'axios';
 const API_BASE_URL =
   import.meta.env.VITE_METRICS_API || 'http://localhost:3002/api/v1/metrics';
 
+console.log('[AuthService] API_BASE_URL =', API_BASE_URL);
+
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: {
