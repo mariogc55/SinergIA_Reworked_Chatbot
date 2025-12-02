@@ -14,7 +14,15 @@ export const StatusService = {
         error.response?.data || error.message
       );
 
-      throw new Error('No se pudo obtener el estado de los servicios.');
+      if (error.response) {
+        throw new Error(
+          error.response.data?.error ||
+            error.response.data?.message ||
+            'Error del servidor al obtener el estado de los servicios.'
+        );
+      }
+
+      throw new Error('No se pudo conectar con el servicio de estado.');
     }
   },
 };

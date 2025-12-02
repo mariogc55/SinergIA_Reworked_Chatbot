@@ -23,24 +23,28 @@ export const AuthService = {
     delete axiosInstance.defaults.headers.common['Authorization'];
   },
 
-  removeAuthHeader() {
-    delete axiosInstance.defaults.headers.common['Authorization'];
-  },
-
-  async login(email, password) {
+  async login(credentials) {
     try {
-      const response = await axiosInstance.post('/auth/login', {
-        email,
-        password,
-      });
+      const response = await axiosInstance.post('/auth/login', credentials);
       return response.data;
     } catch (error) {
       console.error('Error en login:', error.response?.data || error.message);
-      throw (
-        error.response?.data || {
-          error: 'Error de conexión o credenciales inválidas.',
+
+      if (error.response) {
+        const { status, data } = error.response;
+
+        if (status === 400 || status === 401) {
+          throw {
+            error: data?.error || 'Credenciales incorrectas.',
+          };
         }
-      );
+
+        throw {
+          error: data?.error || 'Error del servidor al iniciar sesión.',
+        };
+      }
+
+      throw { error: 'No se pudo conectar con el servidor.' };
     }
   },
 
@@ -50,11 +54,23 @@ export const AuthService = {
       return response.data;
     } catch (error) {
       console.error('Error en registro:', error.response?.data || error.message);
-      throw (
-        error.response?.data || {
-          error: 'Error de conexión o el usuario ya existe.',
+
+      if (error.response) {
+        const { status, data } = error.response;
+
+        if (status === 409) {
+          throw {
+            error: data?.error || 'El usuario ya existe.',
+          };
         }
-      );
+
+        throw {
+          error:
+            data?.error || 'Error del servidor al registrar el usuario.',
+        };
+      }
+
+      throw { error: 'No se pudo conectar con el servidor.' };
     }
   },
 };
