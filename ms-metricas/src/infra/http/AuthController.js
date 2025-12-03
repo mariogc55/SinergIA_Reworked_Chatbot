@@ -15,42 +15,48 @@ export const AuthController = (authRepository) => ({
         if (!req.body) {
             return res.status(400).json({ error: 'Cuerpo de la solicitud vacío.' });
         }
-        
+
         const { name, email, password } = req.body;
-        
+
         if (!name || !email || !password) {
-            return res.status(400).json({ error: 'Faltan campos requeridos: name, email, password.' });
+            return res
+                .status(400)
+                .json({ error: 'Faltan campos requeridos: name, email, password.' });
         }
 
         try {
             const existingUser = await authRepository.findUserByEmail(email);
             if (existingUser) {
-                return res.status(409).json({ error: 'El correo electrónico ya está en uso.' });
+                return res
+                    .status(409)
+                    .json({ error: 'El correo electrónico ya está en uso.' });
             }
 
             const developer_id = await authRepository.generateNextDeveloperId();
             const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-            
-            const user = await authRepository.registerUser({ 
-                developer_id, 
-                name, 
-                email, 
-                password: hashedPassword 
+
+            const user = await authRepository.registerUser({
+                developer_id,
+                name,
+                email,
+                password: hashedPassword,
             });
 
             const token = generateToken(user.developer_id, user.email, user.name);
 
-            res.status(201).json({ 
-                token, 
-                user: { 
-                    developer_id: user.developer_id, 
-                    name: user.name, 
-                    email: user.email 
-                } 
+            res.status(201).json({
+                token,
+                user: {
+                    developer_id: user.developer_id,
+                    name: user.name,
+                    email: user.email,
+                },
             });
-
         } catch (error) {
-            res.status(500).json({ error: 'Error interno del servidor al registrar el usuario.' });
+            console.error('Error en register:', error);
+            res
+                .status(500)
+                .json({ error: 'Error interno del servidor al registrar el usuario.' });
         }
     },
 
@@ -58,11 +64,13 @@ export const AuthController = (authRepository) => ({
         if (!req.body) {
             return res.status(400).json({ error: 'Cuerpo de la solicitud vacío.' });
         }
-        
+
         const { email, password } = req.body;
 
         if (!email || !password) {
-            return res.status(400).json({ error: 'Faltan campos requeridos: email, password.' });
+            return res
+                .status(400)
+                .json({ error: 'Faltan campos requeridos: email, password.' });
         }
 
         try {
@@ -82,17 +90,17 @@ export const AuthController = (authRepository) => ({
 
             const { password: _, ...userWithoutPassword } = user;
 
-            res.status(200).json({ 
-                token, 
-                user: { 
-                    developer_id: userWithoutPassword.developer_id, 
-                    name: userWithoutPassword.name, 
-                    email: userWithoutPassword.email
-                } 
+            res.status(200).json({
+                token,
+                user: {
+                    developer_id: userWithoutPassword.developer_id,
+                    name: userWithoutPassword.name,
+                    email: userWithoutPassword.email,
+                },
             });
-
         } catch (error) {
+            console.error('Error en login:', error);
             res.status(500).json({ error: 'Error del servidor al iniciar sesión.' });
         }
-    }
+    },
 });

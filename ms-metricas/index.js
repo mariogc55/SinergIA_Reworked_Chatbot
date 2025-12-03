@@ -4,7 +4,7 @@ import { initializeDatabase, pool } from './src/infra/db/connection.js';
 import { apiRouter } from './src/routes/api.routes.js';
 
 const app = express();
-const PORT = process.env.METRICS_PORT || 3002;
+const PORT = process.env.PORT || process.env.METRICS_PORT || 3002;
 
 app.disable('x-powered-by');
 
@@ -60,7 +60,7 @@ async function startServer() {
     try {
         await initializeDatabase();
         app.listen(PORT, () => {
-            console.log(`MS-Métricas (PSP) corriendo en http://localhost:${PORT}`);
+            console.log(`MS-Métricas (PSP) corriendo en puerto ${PORT}`);
             console.log('Rutas disponibles en /api/v1/metrics');
             console.log('Healthcheck disponible en /health');
         });
